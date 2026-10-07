@@ -1,9 +1,9 @@
 name: Validate issue templates
 on:
   push:
-    paths: ['.github/ISSUE_TEMPLATE/**', 'PRODUCT_DECISIONS.md', '.github/workflows/validate-templates.yml']
+    paths: ['.github/ISSUE_TEMPLATE/**', 'PRDS.md', '.github/workflows/validate-templates.yml']
   pull_request:
-    paths: ['.github/ISSUE_TEMPLATE/**', 'PRODUCT_DECISIONS.md', '.github/workflows/validate-templates.yml']
+    paths: ['.github/ISSUE_TEMPLATE/**', 'PRDS.md', '.github/workflows/validate-templates.yml']
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
           python3 - <<'PY'
           import json, sys, yaml, requests, jsonschema
           SCHEMAS = {
-            '.github/ISSUE_TEMPLATE/product-decision.yml':
+            '.github/ISSUE_TEMPLATE/prd.yml':
               'https://json.schemastore.org/github-issue-forms.json',
             '.github/ISSUE_TEMPLATE/config.yml':
               'https://json.schemastore.org/github-issue-config.json',
@@ -48,9 +48,9 @@ jobs:
         run: |
           python3 - <<'PY'
           import yaml, sys
-          form = yaml.safe_load(open('.github/ISSUE_TEMPLATE/product-decision.yml'))
+          form = yaml.safe_load(open('.github/ISSUE_TEMPLATE/prd.yml'))
           cfg  = yaml.safe_load(open('.github/ISSUE_TEMPLATE/config.yml'))
-          agreement = open('PRODUCT_DECISIONS.md').read()
+          agreement = open('PRDS.md').read()
           errors = []
 
           def check(cond, msg):
@@ -63,8 +63,8 @@ jobs:
 
           ids = [b['id'] for b in form['body'] if 'id' in b]
           check(len(ids) == len(set(ids)), "duplicate field id")
-          check(form['labels'] == ['decision', 'status:submitted'], "label list changed")
-          check(form['title'].startswith('[decision]'), "title prefix changed")
+          check(form['labels'] == ['prd', 'status:submitted'], "label list changed")
+          check(form['title'].startswith('[PRD]'), "title prefix changed")
 
           # A named global constraint with, until now, no enforcement. Flipping
           # this to false disables blank issues across EVERY repository in the
@@ -78,7 +78,7 @@ jobs:
           check(ack and all(o.get('required') for o in ack[0]['attributes']['options']),
                 "the acknowledgement checkbox is no longer required")
 
-          # PRODUCT_DECISIONS.md's converter prompt hard-codes the field labels
+          # PRDS.md's converter prompt hard-codes the field labels
           # and dropdown option strings, and tells submitters to copy block by
           # block. Rewording a label here silently desynchronises that prompt.
           for b in form['body']:
@@ -87,13 +87,13 @@ jobs:
               label = b.get('attributes', {}).get('label')
               if label:
                   check(label in agreement,
-                        f"field label {label!r} does not appear in PRODUCT_DECISIONS.md "
+                        f"field label {label!r} does not appear in PRDS.md "
                         f"— the converter prompt is now out of sync with the form")
               for opt in b.get('attributes', {}).get('options', []):
                   if isinstance(opt, str):
                       check(opt in agreement,
                             f"dropdown option {opt!r} does not appear in "
-                            f"PRODUCT_DECISIONS.md — converter prompt out of sync")
+                            f"PRDS.md — converter prompt out of sync")
 
           if errors:
               for e in errors: print("FAIL:", e)

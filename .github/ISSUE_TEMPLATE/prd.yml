@@ -1,7 +1,7 @@
-name: Product decision
+name: PRD
 description: Something we should build, change, or stop doing.
-title: "[decision] "
-labels: ["decision", "status:submitted"]
+title: "[PRD] "
+labels: ["prd", "status:submitted"]
 body:
   - type: markdown
     attributes:
@@ -9,7 +9,7 @@ body:
         Describe **what should exist and why**. How it gets built is engineering's side of the line.
 
         If you already have this written down somewhere — a doc, a call transcript, an
-        email thread — don't retype it. [The converter prompt](https://github.com/ArtemyxLabs/.github/blob/main/PRODUCT_DECISIONS.md#turning-a-document-you-already-have-into-a-submission)
+        email thread — don't retype it. [The converter prompt](https://github.com/ArtemyxLabs/.github/blob/main/PRDS.md#turning-a-document-you-already-have-into-a-submission)
         turns it into these fields for you.
 
   - type: textarea

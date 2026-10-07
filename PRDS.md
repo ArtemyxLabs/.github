@@ -1,7 +1,7 @@
-# How product decisions work
+# How PRDs work
 
-If you want something built, changed, or stopped, file it as a **Product decision**. Go to
-the project it's about, pick *Issues* → *New issue* → *Product decision*, and fill the
+If you want something built, changed, or stopped, file it as a **PRD**. Go to
+the project it's about, pick *Issues* → *New issue* → *PRD*, and fill the
 form in.
 
 **If you don't know which project to file it under, file it anywhere you can and say so in
@@ -79,7 +79,7 @@ quietly, people stop using it, so this one doesn't.
 ## Filing without the form
 
 You can still open a blank issue, and sometimes that's right — a bug, a question, a quick
-note. It just won't be tracked as a decision, so if it is one, you'll be asked to refile
+note. It just won't be tracked as a PRD, so if it is one, you'll be asked to refile
 it, or the form will be filled in on your behalf for you to check. Nothing gets lost
 either way.
 
@@ -98,7 +98,7 @@ are for. It is good at this and it is not infallible, so a thirty-second check b
 finding out later that a sentence nobody wrote ended up in an issue.
 
 ````text
-You are converting a document into a product decision submission for the ArtemyxLabs
+You are converting a document into a PRD submission for the ArtemyxLabs
 intake form. The person pasting this is on the product side; the engineer who reads your
 output is not in the room.
 
@@ -129,7 +129,7 @@ to Evidence: if the document contains no evidence, write
 A plausible sentence you composed is not evidence. It is the single most damaging thing
 you can produce here, because it reaches the engineer looking like fact.
 
-## Second rule: one decision per submission
+## Second rule: one PRD per decision
 
 Documents usually contain several decisions. Identify them. Produce one complete
 submission for each, numbered. If two decisions are genuinely entangled, say so and name
