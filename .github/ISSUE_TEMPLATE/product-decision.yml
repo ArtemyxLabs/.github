@@ -1,0 +1,126 @@
+name: Product decision
+description: Something we should build, change, or stop doing.
+title: "[decision] "
+labels: ["decision", "status:submitted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe **what should exist and why**. How it gets built is engineering's side of the line.
+
+        If you already have this written down somewhere — a doc, a call transcript, an
+        email thread — don't retype it. [The converter prompt](https://github.com/ArtemyxLabs/.github/blob/main/PRODUCT_DECISIONS.md#turning-a-document-you-already-have-into-a-submission)
+        turns it into these fields for you.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What's happening today that makes this worth doing? Who's affected, and how often?
+      placeholder: Coaches re-enter the same three filters every morning before they can see their squad. Six coaches, every day.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: >
+        What makes you confident? A support ticket, a user quote, a number, a contract, a
+        competitor. "It's my gut" is an acceptable answer — just write that.
+      placeholder: Two coaches raised it unprompted on the Tuesday call. No ticket.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: decided
+    attributes:
+      label: Is this decided?
+      options:
+        - We've decided — build it
+        - Proposing — tell me if this is right
+        - Problem only — you propose the solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution — the what
+      description: >
+        What should exist when this is done? The feature, the change, the behaviour.
+        Describe what it does, not how it's built. If you picked "problem only" above,
+        write that here.
+      placeholder: Coaches can save a set of filters and reuse it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: success
+    attributes:
+      label: How we'll know it worked
+      description: >
+        What would you expect to see change? A behaviour that stops, a number that moves,
+        a complaint that goes away. This is not the same as the field above — that one is
+        the thing, this one is the evidence it worked.
+      placeholder: Coaches stop re-entering the same three filters every morning.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: appetite
+    attributes:
+      label: Appetite
+      description: >
+        How much is this problem worth — not how long you think it will take. This is what
+        lets scope be cut to fit instead of a deadline being negotiated.
+      options:
+        - Days
+        - A week or two
+        - Worth a month
+        - Don't know
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deadline
+    attributes:
+      label: Is there a real deadline?
+      description: A demo, a client commitment, an App Store review. Not "soon".
+      options:
+        - No date
+        - Soft preference
+        - Hard external date
+    validations:
+      required: true
+
+  - type: input
+    id: deadline_detail
+    attributes:
+      label: If there's a hard date — what is it, and what's driving it?
+      placeholder: 14 Nov — the season opener.
+
+  - type: input
+    id: product
+    attributes:
+      label: Which product or area is this about?
+      placeholder: the mobile app
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: Anything you specifically do not want, or a direction already ruled out?
+
+  - type: input
+    id: stakeholders
+    attributes:
+      label: Who else needs to know?
+
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Before you submit
+      options:
+        - label: I've described what should exist and why — not how to build it.
+          required: true

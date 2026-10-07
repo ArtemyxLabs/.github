@@ -1,0 +1,102 @@
+name: Validate issue templates
+on:
+  push:
+    paths: ['.github/ISSUE_TEMPLATE/**', 'PRODUCT_DECISIONS.md', '.github/workflows/validate-templates.yml']
+  pull_request:
+    paths: ['.github/ISSUE_TEMPLATE/**', 'PRODUCT_DECISIONS.md', '.github/workflows/validate-templates.yml']
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the YAML and schema parsers explicitly
+        # Not relying on the runner image happening to ship these: an image
+        # change would turn this guard green-by-absence.
+        run: python3 -m pip install --quiet pyyaml jsonschema requests
+
+      - name: Validate against GitHub's real issue-form schema
+        # Parsing as YAML is not enough. A dropdown that loses its `options`,
+        # a field that loses its `label`, or a misspelled `type` are all valid
+        # YAML. GitHub rejects the template, silently serves a blank issue
+        # instead, and nothing tells us. Only the schema catches those.
+        run: |
+          python3 - <<'PY'
+          import json, sys, yaml, requests, jsonschema
+          SCHEMAS = {
+            '.github/ISSUE_TEMPLATE/product-decision.yml':
+              'https://json.schemastore.org/github-issue-forms.json',
+            '.github/ISSUE_TEMPLATE/config.yml':
+              'https://json.schemastore.org/github-issue-config.json',
+          }
+          failed = False
+          for path, url in SCHEMAS.items():
+              r = requests.get(url, timeout=30)
+              r.raise_for_status()          # fail closed if schemastore is down
+              schema = r.json()
+              doc = yaml.safe_load(open(path))
+              try:
+                  jsonschema.validate(doc, schema)
+                  print(f"schema ok: {path}")
+              except jsonschema.ValidationError as e:
+                  failed = True
+                  print(f"SCHEMA FAILURE in {path} at {list(e.path)}: {e.message}")
+          sys.exit(1 if failed else 0)
+          PY
+
+      - name: Assert the intake contract has not drifted
+        run: |
+          python3 - <<'PY'
+          import yaml, sys
+          form = yaml.safe_load(open('.github/ISSUE_TEMPLATE/product-decision.yml'))
+          cfg  = yaml.safe_load(open('.github/ISSUE_TEMPLATE/config.yml'))
+          agreement = open('PRODUCT_DECISIONS.md').read()
+          errors = []
+
+          def check(cond, msg):
+              if not cond: errors.append(msg)
+
+          required = {b['id'] for b in form['body']
+                      if b.get('validations', {}).get('required')}
+          expected = {'problem','evidence','decided','solution','success','appetite','deadline'}
+          check(required == expected, f"required fields drifted: {required ^ expected}")
+
+          ids = [b['id'] for b in form['body'] if 'id' in b]
+          check(len(ids) == len(set(ids)), "duplicate field id")
+          check(form['labels'] == ['decision', 'status:submitted'], "label list changed")
+          check(form['title'].startswith('[decision]'), "title prefix changed")
+
+          # A named global constraint with, until now, no enforcement. Flipping
+          # this to false disables blank issues across EVERY repository in the
+          # organisation, including the infrastructure ones.
+          check(cfg.get('blank_issues_enabled') is True,
+                "blank_issues_enabled must stay true — it applies org-wide")
+
+          # The acknowledgement checkbox's required flag lives on the option,
+          # not in validations, so the `required` set above cannot see it.
+          ack = [b for b in form['body'] if b.get('id') == 'acknowledgement']
+          check(ack and all(o.get('required') for o in ack[0]['attributes']['options']),
+                "the acknowledgement checkbox is no longer required")
+
+          # PRODUCT_DECISIONS.md's converter prompt hard-codes the field labels
+          # and dropdown option strings, and tells submitters to copy block by
+          # block. Rewording a label here silently desynchronises that prompt.
+          for b in form['body']:
+              if b.get('type') in ('markdown', 'checkboxes'):
+                  continue   # not fields the converter emits a block for
+              label = b.get('attributes', {}).get('label')
+              if label:
+                  check(label in agreement,
+                        f"field label {label!r} does not appear in PRODUCT_DECISIONS.md "
+                        f"— the converter prompt is now out of sync with the form")
+              for opt in b.get('attributes', {}).get('options', []):
+                  if isinstance(opt, str):
+                      check(opt in agreement,
+                            f"dropdown option {opt!r} does not appear in "
+                            f"PRODUCT_DECISIONS.md — converter prompt out of sync")
+
+          if errors:
+              for e in errors: print("FAIL:", e)
+              sys.exit(1)
+          print(f"contract ok: {len(ids)} fields, {len(required)} required, prompt in sync")
+          PY
