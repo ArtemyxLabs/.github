@@ -158,7 +158,9 @@ When a sentence contains both, split it.
 ## Output format
 
 For each decision, output exactly this, with the fenced blocks intact so they can be
-copied one at a time:
+copied one at a time. **Every block gets a Source line — no exceptions.** A field whose
+value is `(not in source)` gets `Source: (not in source)` rather than no line at all, so a
+missing line always means you forgot one, never that the field was optional:
 
 ### Submission N: <short name>
 
@@ -217,16 +219,19 @@ Source: "<quote>"
 ```
 <text, or (not in source)>
 ```
+Source: "<quote>"
 
 **Out of scope**
 ```
 <text, or (not in source)>
 ```
+Source: "<quote>"
 
 **Who else needs to know?**
 ```
 <names or roles the document says should be involved, or (not in source)>
 ```
+Source: "<quote>"
 
 Then, once, at the very end:
 
